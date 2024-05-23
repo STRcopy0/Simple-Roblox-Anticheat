@@ -1,11 +1,41 @@
-local LogService = game:GetService("LogService")
+local ServerScriptService = game:GetService("ServerScriptService")
+local Players = game:GetService("Players")
 
-LogService.MessageOut:Connect(function(Message, MessageType)
-    local BannedError = "Script ''"
-    local Matching = string.match(Message, BannedError)
-    if Matching == BannedError then
-        -- crash client_if_cheat is detected
-        while true do end
-        script:Destroy()
+-- list whatever banned modules are needed
+local BannedModules = {
+    "ModuleScript1",
+    "ModuleScript2",
+    "ModuleScript3",
+    -- add more if needed
+}
+
+-- func to check for banned modules
+local function CheckForBannedModules(player)
+    local character = player.Character
+    if character then
+        for _, descendant in pairs(character:GetDescendants()) do
+            if descendant:IsA("ModuleScript") then
+                local moduleName = descendant.Name
+                if table.find(BannedModules, moduleName) then
+                    -- Kick the player for using a banned module
+                    player:Kick("You are using a banned module: " .. moduleName)
+                end
+            end
+        end
     end
+end
+
+-- check player events
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        CheckForBannedModules(player)
+    end)
 end)
+
+-- loop check
+while true do
+    for _, player in pairs(Players:GetPlayers()) do
+        CheckForBannedModules(player)
+    end
+    wait(10) -- Check every 10 seconds
+end
