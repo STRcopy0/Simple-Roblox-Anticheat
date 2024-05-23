@@ -1,0 +1,11 @@
+local LogService = game:GetService("LogService")
+
+LogService.MessageOut:Connect(function(Message, MessageType)
+    local BannedError = "Script ''"
+    local Matching = string.match(Message, BannedError)
+    if Matching == BannedError then
+        -- crash client_if_cheat is detected
+        while true do end
+        script:Destroy()
+    end
+end)
